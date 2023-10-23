@@ -34,7 +34,13 @@
         .Imperial {
             color: black;
             margin-top: 40px;
-            margin-bottom: 400px;
+            margin-bottom: 40px;
+            font-size: 40px;
+        }
+        .padding {
+            color: transparent;
+            margin-top: 40px;
+            margin-bottom: 40px;
             font-size: 40px;
         }
     </style>
@@ -50,7 +56,7 @@
 <button onclick="clearInput()">Clear Input</button>
 
 <!-- Result Display -->
-<div class="answer">SI Unitis</div>
+<div class="answer">SI Units</div>
 
 <!-- Result Display -->
 <div class="con">Base Unit Breakdown</div>
@@ -58,6 +64,7 @@
 <!-- Result Display -->
 <div class="Imperial">Imperial Units</div>
 
+<div class="padding">1 </div>
 <script>
 const inputElem = document.getElementById("input-box");
 inputElem.focus();
@@ -118,7 +125,7 @@ let units = {'':[0.0,0.0,0.0,0.0,0.0],
 'slug':[1.0,0.0,0.0,0.0,0.0],
 'mass_moon':[1.0,0.0,0.0,0.0,0.0],
 'lbm':[1.0,0.0,0.0,0.0,0.0],
-'Atomic Mass Unit':[1.0,0.0,0.0,0.0,0.0],
+'Atomic_Mass_Unit':[1.0,0.0,0.0,0.0,0.0],
 'm':[0.0,1.0,0.0,0.0,0.0],
 'pc':[0.0,1.0,0.0,0.0,0.0],
 'AU':[0.0,1.0,0.0,0.0,0.0],
@@ -127,7 +134,7 @@ let units = {'':[0.0,0.0,0.0,0.0,0.0],
 'Å':[0.0,1.0,0.0,0.0,0.0],
 'Planck_length':[0.0,1.0,0.0,0.0,0.0],
 'yard':[0.0,1.0,0.0,0.0,0.0],
-'Football Field':[0.0,1.0,0.0,0.0,0.0],
+'Football_Field':[0.0,1.0,0.0,0.0,0.0],
 'mile':[0.0,1.0,0.0,0.0,0.0],
 'in':[0.0,1.0,0.0,0.0,0.0],
 'ft':[0.0,1.0,0.0,0.0,0.0],
@@ -170,14 +177,14 @@ let units = {'':[0.0,0.0,0.0,0.0,0.0],
 'e':[0.0,0.0,1.0,1.0,0.0],
 'kg/s':[1.0,-1.0,0.0,0.0,0.0],
 'm/s':[0.0,1.0,-1.0,0.0,0.0],
-'c_speed of light':[0.0,1.0,-1.0,0.0,0.0],
+'c_speed_of_light':[0.0,1.0,-1.0,0.0,0.0],
 'mph':[0.0,1.0,-1.0,0.0,0.0],
 'm/s²':[0.0,1.0,-2.0,0.0,0.0],
 'g_earth':[0.0,1.0,-2.0,0.0,0.0],
 'm/s^2':[0.0,1.0,-2.0,0.0,0.0],
 'g/m³':[1.0,-3.0,0.0,0.0,0.0],
 'kg/m³':[1.0,-3.0,0.0,0.0,0.0],
-'Density of Water':[1.0,-3.0,0.0,0.0,0.0],
+'Density_of_Water':[1.0,-3.0,0.0,0.0,0.0],
 'N':[1.0,1.0,-2.0,0.0,0.0],
 'lbf':[1.0,1.0,-2.0,0.0,0.0],
 'lb':[1.0,1.0,-2.0,0.0,0.0],
@@ -191,7 +198,7 @@ let units = {'':[0.0,0.0,0.0,0.0,0.0],
 'cal':[1.0,2.0,-2.0,0.0,0.0],
 'kcal':[1.0,2.0,-2.0,0.0,0.0],
 'BTU':[1.0,2.0,-2.0,0.0,0.0],
-'G_gravitational constant':[-1.0,3.0,-2.0,0.0,0.0],
+'G_gravitational_constant':[-1.0,3.0,-2.0,0.0,0.0],
 'G':[-1.0,3.0,-2.0,0.0,0.0],
 'W':[1.0,2.0,-3.0,0.0,0.0],
 'hp':[1.0,2.0,-3.0,0.0,0.0],
@@ -200,7 +207,7 @@ let units = {'':[0.0,0.0,0.0,0.0,0.0],
 'Ω':[1.0,2.0,-3.0,-2.0,0.0],
 'F':[-1.0,-2.0,4.0,2.0,0.0],
 'ε_0':[-1.0,-3.0,4.0,2.0,0.0],
-'Coulomb constant':[1.0,3.0,-4.0,-2.0,0.0],
+'Coulomb_constant':[1.0,3.0,-4.0,-2.0,0.0],
 'k_e':[1.0,3.0,-4.0,-2.0,0.0],};
 unit_values = {'':1,
 'degrees':0.017453292519943295,
@@ -223,7 +230,7 @@ unit_values = {'':1,
 'slug':14.5939,
 'mass_moon':7.347673e+22,
 'lbm':0.453592,
-'Atomic Mass Unit':1.6605390666e-27,
+'Atomic_Mass_Unit':1.6605390666e-27,
 'm':1,
 'pc':3.0857e+16,
 'AU':149597800000.0,
@@ -232,7 +239,7 @@ unit_values = {'':1,
 'Å':1e-10,
 'Planck_length':1.6162553e-35,
 'yard':0.9144000000000001,
-'Football Field':91.44000000000001,
+'Football_Field':91.44000000000001,
 'mile':1609.34,
 'in':0.025400000000000002,
 'ft':0.3048,
@@ -275,14 +282,14 @@ unit_values = {'':1,
 'e':1.602176634e-19,
 'kg/s':1,
 'm/s':1,
-'c_speed of light':299792458,
+'c_speed_of_light':299792458,
 'mph':0.44704,
 'm/s²':1,
 'g_earth':9.80665,
 'm/s^2':1,
 'g/m³':0.001,
 'kg/m³':1,
-'Density of Water':999.8395,
+'Density_of_Water':999.8395,
 'N':1,
 'lbf':4.44822,
 'lb':4.44822,
@@ -296,7 +303,7 @@ unit_values = {'':1,
 'cal':4.184,
 'kcal':4.184,
 'BTU':1055.1,
-'G_gravitational constant':6.6743e-11,
+'G_gravitational_constant':6.6743e-11,
 'G':6.6743e-11,
 'W':1,
 'hp':745.7,
@@ -305,7 +312,7 @@ unit_values = {'':1,
 'Ω':1,
 'F':1,
 'ε_0':8.8541878128e-12,
-'Coulomb constant':8987551000.0,
+'Coulomb_constant':8987551000.0,
 'k_e':8987551000.0,};
 let knownUnits = Object.keys(units).sort((a, b) => b.length - a.length);
 let imperial_keys = [
@@ -314,7 +321,7 @@ let imperial_keys = [
     'lbm',
     'in',
     'yard',
-    'Football Field',
+    'Football_Field',
     'mile',
     'ft',
     'miles',
@@ -449,8 +456,17 @@ class Value {
         //console.log(this.value);
         let unit_str = inTermsMetric(this.mlta_vector);
         let v = this.value;
-
         v = this.get_value_in_terms(unit_str);
+        if (unit_str == '')
+        {   
+            unit_str = intermsStrCon(['g','m','s','A','K'],this.mlta_vector);
+            if (unit_str[0] === 'g'){
+            v /= 1000;
+            }
+        }
+        
+        
+        
 
         let pref_str = bestPrefix(v,prefixes);
 
@@ -484,7 +500,7 @@ class Value {
         }
 
         v /= prefixescon[pref_str]
-        return(v.toPrecision(PRECISCION).toString() + pref_str + unit_str);
+        return(v.toPrecision(PRECISCION).toString() +' '+ pref_str + unit_str);
     }
   }
 
@@ -613,7 +629,7 @@ class Value {
             MAIN(); // Update the divs
         }
 
-        const button_text = ['×', '÷', '°', 'μ', 'π', 'Ω', 'Å', 'ε_0', 'k_e', 'H_0', 'c_speed of light', 'Density of Water', 'g_earth', 'molarity', 'G_gravitational constant', 'Planck_length', 'Planck_mass', 'Planck_time', 'Planck_temperature', 'earth_circumference', 'Age_of_universe', 'mass_sun', 'mass_earth', 'mass_moon', 'R_earth'];
+        const button_text = ['×', '÷', '°', 'μ', 'π', 'Ω', 'Å', 'ε_0', 'k_e', 'H_0', 'c_speed_of_light','Density_of_Water', 'g_earth', 'molarity', 'G_gravitational constant', 'Planck_length', 'Planck_mass', 'Planck_time', 'Planck_temperature', 'earth_circumference', 'Age_of_universe', 'mass_sun', 'mass_earth', 'mass_moon', 'R_earth','×', '÷'];
 
         const buttonsContainer = document.getElementById("buttons-container");
 
