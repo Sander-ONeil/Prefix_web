@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    </style>
     <title>String Splitter</title>
     <style>
+        .special-btn {
+            margin: 5px;
+            padding: 5px 10px;
+        }
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
@@ -28,14 +34,17 @@
         .Imperial {
             color: black;
             margin-top: 40px;
+            margin-bottom: 400px;
             font-size: 40px;
         }
     </style>
 </head>
 <body>
+<!-- Special Buttons -->
+<div id="buttons-container"></div>
 
 <!-- Entry Box -->
-<input type="text" class="input-box" placeholder="Enter your text here..." onkeyup="MAIN()">
+<input type="text" class="input-box" id ="input-box"  placeholder="Enter your text here..." onkeyup="MAIN()">
 
 <!-- Clear Button -->
 <button onclick="clearInput()">Clear Input</button>
@@ -50,6 +59,9 @@
 <div class="Imperial">Imperial Units</div>
 
 <script>
+const inputElem = document.getElementById("input-box");
+inputElem.focus();
+
 let PRECISCION = 5;
 let prefixes ={
 
@@ -547,7 +559,11 @@ class Value {
     let terms = [];
     let exponents = [];
     
-    input_str = input_str.replace(/\s/g, '');
+    input_str = input_str.replaceAll(/\s/g, '');
+    input_str = input_str.replaceAll('×', '*');
+    input_str = input_str.replaceAll('⋅', '*');
+    input_str = input_str.replaceAll('÷', '/');
+    console.log(input_str);
     let start = 0;
     for (let i = 0; i < input_str.length; i++) 
     {
@@ -597,7 +613,37 @@ class Value {
             MAIN(); // Update the divs
         }
 
+        const button_text = ['×', '÷', '°', 'μ', 'π', 'Ω', 'Å', 'ε_0', 'k_e', 'H_0', 'c_speed of light', 'Density of Water', 'g_earth', 'molarity', 'G_gravitational constant', 'Planck_length', 'Planck_mass', 'Planck_time', 'Planck_temperature', 'earth_circumference', 'Age_of_universe', 'mass_sun', 'mass_earth', 'mass_moon', 'R_earth'];
 
+        const buttonsContainer = document.getElementById("buttons-container");
+
+        button_text.forEach(t => {
+            const btn = document.createElement('button');
+            btn.textContent = t;
+            btn.classList.add('special-btn');
+            btn.onclick = () => insertCharacter(t);
+            buttonsContainer.appendChild(btn);
+        });
+
+        function insertCharacter(char) {
+            const inputElem = document.getElementById("input-box");
+            //console.log(inputElem);
+            const cursorPosition = inputElem.selectionStart;
+
+            const inputValue = inputElem.value;
+            const beforeCursor = inputValue.substring(0, cursorPosition);
+            const afterCursor = inputValue.substring(cursorPosition, inputValue.length);
+
+            inputElem.value = beforeCursor + char + afterCursor;
+            
+            // Move the cursor right after the inserted character
+            inputElem.selectionStart = cursorPosition + char.length;
+            inputElem.selectionEnd = cursorPosition + char.length;
+
+            MAIN();  // If you still want to update the divs immediately after insertion
+            inputElem.focus();
+        }
+        inputElem.focus();
     
 </script>
 
