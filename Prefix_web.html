@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>String Splitter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .input-box {
+            font-size: 20px;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .answer {
+            color: black;
+            margin-top: 40px;
+            font-size: 40px;
+        }
+        .con {
+            color: black;
+            margin-top: 40px;
+            font-size: 20px;
+        }
+        .Imperial {
+            color: black;
+            margin-top: 40px;
+            font-size: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Entry Box -->
+<input type="text" class="input-box" placeholder="Enter your text here..." onkeyup="MAIN()">
+
+<!-- Clear Button -->
+<button onclick="clearInput()">Clear Input</button>
+
+<!-- Result Display -->
+<div class="answer">SI Unitis</div>
+
+<!-- Result Display -->
+<div class="con">Base Unit Breakdown</div>
+
+<!-- Result Display -->
+<div class="Imperial">Imperial Units</div>
+
+<script>
+let PRECISCION = 5;
+let prefixes ={
+
+    'Q':1e30,
+    'R':1e27,
+    'Y':1e24,
+    'Z':1e21,
+    'E':1e18,
+    'P':1e15,
+    'T':1e12,
+    'G':1e9,
+    'M':1e6,
+    'k':1e3,
+    '': 1,
+    'c':1e-2,
+    'm':1e-3,
+    'μ':1e-6,
+    'n':1e-9,
+    'p':1e-12,
+    'f':1e-15,
+    'a':1e-18,
+    'z':1e-21,
+    'y':1e-24,
+    'r':1e-27,
+    'q':1e-30,
+};
+let prefixescon = {};
+prefixescon[""] = 1;
+
+for (let x = -46; x < -5; x++) {
+    prefixescon["e" + x + " "] = Math.pow(10, x);
+}
+for (let x = 5; x < 46; x++) {
+    prefixescon["e" + x + " "] = Math.pow(10, x);
+}
+let units = {'':[0.0,0.0,0.0,0.0,0.0],
+'degrees':[0.0,0.0,0.0,0.0,0.0],
+'rotations':[0.0,0.0,0.0,0.0,0.0],
+'pi':[0.0,0.0,0.0,0.0,0.0],
+'mole':[0.0,0.0,0.0,0.0,0.0],
+'°':[0.0,0.0,0.0,0.0,0.0],
+' ':[0.0,0.0,0.0,0.0,0.0],
+'rot':[0.0,0.0,0.0,0.0,0.0],
+'rotation':[0.0,0.0,0.0,0.0,0.0],
+'deg':[0.0,0.0,0.0,0.0,0.0],
+'π':[0.0,0.0,0.0,0.0,0.0],
+'g':[1.0,0.0,0.0,0.0,0.0],
+'kg':[1.0,0.0,0.0,0.0,0.0],
+'amu':[1.0,0.0,0.0,0.0,0.0],
+'Planck_mass':[1.0,0.0,0.0,0.0,0.0],
+'lb_mass':[1.0,0.0,0.0,0.0,0.0],
+'mass_sun':[1.0,0.0,0.0,0.0,0.0],
+'mass_earth':[1.0,0.0,0.0,0.0,0.0],
+'slug':[1.0,0.0,0.0,0.0,0.0],
+'mass_moon':[1.0,0.0,0.0,0.0,0.0],
+'lbm':[1.0,0.0,0.0,0.0,0.0],
+'Atomic Mass Unit':[1.0,0.0,0.0,0.0,0.0],
+'m':[0.0,1.0,0.0,0.0,0.0],
+'pc':[0.0,1.0,0.0,0.0,0.0],
+'AU':[0.0,1.0,0.0,0.0,0.0],
+'earth_circumference':[0.0,1.0,0.0,0.0,0.0],
+'R_earth':[0.0,1.0,0.0,0.0,0.0],
+'Å':[0.0,1.0,0.0,0.0,0.0],
+'Planck_length':[0.0,1.0,0.0,0.0,0.0],
+'yard':[0.0,1.0,0.0,0.0,0.0],
+'Football Field':[0.0,1.0,0.0,0.0,0.0],
+'mile':[0.0,1.0,0.0,0.0,0.0],
+'in':[0.0,1.0,0.0,0.0,0.0],
+'ft':[0.0,1.0,0.0,0.0,0.0],
+'orbit_moon':[0.0,1.0,0.0,0.0,0.0],
+'miles':[0.0,1.0,0.0,0.0,0.0],
+'s':[0.0,0.0,1.0,0.0,0.0],
+'Planck_time':[0.0,0.0,1.0,0.0,0.0],
+'minute':[0.0,0.0,1.0,0.0,0.0],
+'min':[0.0,0.0,1.0,0.0,0.0],
+'hour':[0.0,0.0,1.0,0.0,0.0],
+'hr':[0.0,0.0,1.0,0.0,0.0],
+'day':[0.0,0.0,1.0,0.0,0.0],
+'yr':[0.0,0.0,1.0,0.0,0.0],
+'year':[0.0,0.0,1.0,0.0,0.0],
+'Age_of_universe':[0.0,0.0,1.0,0.0,0.0],
+'h':[0.0,0.0,1.0,0.0,0.0],
+'years':[0.0,0.0,1.0,0.0,0.0],
+'days':[0.0,0.0,1.0,0.0,0.0],
+'sec':[0.0,0.0,1.0,0.0,0.0],
+'second':[0.0,0.0,1.0,0.0,0.0],
+'A':[0.0,0.0,0.0,1.0,0.0],
+'Planck_temperature':[0.0,0.0,0.0,1.0,0.0],
+'K':[0.0,0.0,0.0,0.0,1.0],
+'°F':[0.0,0.0,0.0,0.0,1.0],
+'hz':[0.0,0.0,-1.0,0.0,0.0],
+'rpm':[0.0,0.0,-1.0,0.0,0.0],
+'RPM':[0.0,0.0,-1.0,0.0,0.0],
+'H_0':[0.0,0.0,-1.0,0.0,0.0],
+'m²':[0.0,2.0,0.0,0.0,0.0],
+'acre':[0.0,2.0,0.0,0.0,0.0],
+'m^2':[0.0,2.0,0.0,0.0,0.0],
+'m³':[0.0,3.0,0.0,0.0,0.0],
+'liter':[0.0,3.0,0.0,0.0,0.0],
+'gallon':[0.0,3.0,0.0,0.0,0.0],
+'gallons':[0.0,3.0,0.0,0.0,0.0],
+'L':[0.0,3.0,0.0,0.0,0.0],
+'m^3':[0.0,3.0,0.0,0.0,0.0],
+'molarity':[0.0,-3.0,0.0,0.0,0.0],
+'C':[0.0,0.0,1.0,1.0,0.0],
+'e':[0.0,0.0,1.0,1.0,0.0],
+'kg/s':[1.0,-1.0,0.0,0.0,0.0],
+'m/s':[0.0,1.0,-1.0,0.0,0.0],
+'c_speed of light':[0.0,1.0,-1.0,0.0,0.0],
+'mph':[0.0,1.0,-1.0,0.0,0.0],
+'m/s²':[0.0,1.0,-2.0,0.0,0.0],
+'g_earth':[0.0,1.0,-2.0,0.0,0.0],
+'m/s^2':[0.0,1.0,-2.0,0.0,0.0],
+'g/m³':[1.0,-3.0,0.0,0.0,0.0],
+'kg/m³':[1.0,-3.0,0.0,0.0,0.0],
+'Density of Water':[1.0,-3.0,0.0,0.0,0.0],
+'N':[1.0,1.0,-2.0,0.0,0.0],
+'lbf':[1.0,1.0,-2.0,0.0,0.0],
+'lb':[1.0,1.0,-2.0,0.0,0.0],
+'Pa':[1.0,-1.0,-2.0,0.0,0.0],
+'atm':[1.0,-1.0,-2.0,0.0,0.0],
+'psi':[1.0,-1.0,-2.0,0.0,0.0],
+'T_tesla':[1.0,0.0,-2.0,-1.0,0.0],
+'J':[1.0,2.0,-2.0,0.0,0.0],
+'eV':[1.0,2.0,-2.0,0.0,0.0],
+'Btu':[1.0,2.0,-2.0,0.0,0.0],
+'cal':[1.0,2.0,-2.0,0.0,0.0],
+'kcal':[1.0,2.0,-2.0,0.0,0.0],
+'BTU':[1.0,2.0,-2.0,0.0,0.0],
+'G_gravitational constant':[-1.0,3.0,-2.0,0.0,0.0],
+'G':[-1.0,3.0,-2.0,0.0,0.0],
+'W':[1.0,2.0,-3.0,0.0,0.0],
+'hp':[1.0,2.0,-3.0,0.0,0.0],
+'V':[1.0,2.0,-3.0,-1.0,0.0],
+'H':[1.0,2.0,-2.0,-2.0,0.0],
+'Ω':[1.0,2.0,-3.0,-2.0,0.0],
+'F':[-1.0,-2.0,4.0,2.0,0.0],
+'ε_0':[-1.0,-3.0,4.0,2.0,0.0],
+'Coulomb constant':[1.0,3.0,-4.0,-2.0,0.0],
+'k_e':[1.0,3.0,-4.0,-2.0,0.0],};
+unit_values = {'':1,
+'degrees':0.017453292519943295,
+'rotations':6.283185307179586,
+'pi':3.141592653589793,
+'mole':6.0221407599999996e+26,
+'°':0.017453292519943295,
+' ':1,
+'rot':6.283185307179586,
+'rotation':6.283185307179586,
+'deg':0.017453292519943295,
+'π':3.141592653589793,
+'g':0.001,
+'kg':1,
+'amu':1.6605390666e-27,
+'Planck_mass':2.176434e-08,
+'lb_mass':0.453592,
+'mass_sun':1.9891e+30,
+'mass_earth':5.97219e+24,
+'slug':14.5939,
+'mass_moon':7.347673e+22,
+'lbm':0.453592,
+'Atomic Mass Unit':1.6605390666e-27,
+'m':1,
+'pc':3.0857e+16,
+'AU':149597800000.0,
+'earth_circumference':40075000,
+'R_earth':6378130.0,
+'Å':1e-10,
+'Planck_length':1.6162553e-35,
+'yard':0.9144000000000001,
+'Football Field':91.44000000000001,
+'mile':1609.34,
+'in':0.025400000000000002,
+'ft':0.3048,
+'orbit_moon':384400000,
+'miles':1609.34,
+'s':1,
+'Planck_time':5.391247e-44,
+'minute':60,
+'min':60,
+'hour':3600,
+'hr':3600,
+'day':86400,
+'yr':31540000.0,
+'year':31540000.0,
+'Age_of_universe':4.34842e+17,
+'h':3600,
+'years':31540000.0,
+'days':86400,
+'sec':1,
+'second':1,
+'A':1,
+'Planck_temperature':1.416784e+32,
+'K':1,
+'°F':0.5555555555555556,
+'hz':1,
+'rpm':0.10471975511965977,
+'RPM':0.10471975511965977,
+'H_0':2.197802197802198e-18,
+'m²':1,
+'acre':4046.8564224,
+'m^2':1,
+'m³':1,
+'liter':0.001,
+'gallon':0.00378541,
+'gallons':0.00378541,
+'L':0.001,
+'m^3':1,
+'molarity':6.0221407599999996e+26,
+'C':1,
+'e':1.602176634e-19,
+'kg/s':1,
+'m/s':1,
+'c_speed of light':299792458,
+'mph':0.44704,
+'m/s²':1,
+'g_earth':9.80665,
+'m/s^2':1,
+'g/m³':0.001,
+'kg/m³':1,
+'Density of Water':999.8395,
+'N':1,
+'lbf':4.44822,
+'lb':4.44822,
+'Pa':1,
+'atm':101325,
+'psi':6894.76,
+'T_tesla':1,
+'J':1,
+'eV':1.602176634e-19,
+'Btu':1055.1,
+'cal':4.184,
+'kcal':4.184,
+'BTU':1055.1,
+'G_gravitational constant':6.6743e-11,
+'G':6.6743e-11,
+'W':1,
+'hp':745.7,
+'V':1,
+'H':1,
+'Ω':1,
+'F':1,
+'ε_0':8.8541878128e-12,
+'Coulomb constant':8987551000.0,
+'k_e':8987551000.0,};
+let knownUnits = Object.keys(units).sort((a, b) => b.length - a.length);
+let imperial_keys = [
+    'lb_mass',
+    'slug',
+    'lbm',
+    'in',
+    'yard',
+    'Football Field',
+    'mile',
+    'ft',
+    'miles',
+    '°F',
+    'acre',
+    'gallon',
+    'gallons',
+    'mph',
+    'lbf',
+    'lb',
+    'psi',
+    'Btu',
+    'BTU',
+    'hp'
+];
+
+function toSuperscript(num) {
+    const superscript_map = {
+        '-': "\u207b",
+        '0': "\u2070",
+        '1': "\u00b9",
+        '2': "\u00b2",
+        '3': "\u00b3",
+        '4': "\u2074",
+        '5': "\u2075",
+        '6': "\u2076",
+        '7': "\u2077",
+        '8': "\u2078",
+        '9': "\u2079",
+        '.': "\u22C5"
+    };
+
+    return [...String(num)].map(char => superscript_map[char] || char).join('');
+}
+function bestPrefix(num,p_list) {
+    let best = '';
+    
+    if ((num<1) || (num >100)){
+    for (let prefix in p_list) {
+        if (Math.abs(num) >= p_list[prefix] && (p_list[prefix] > p_list[best])) {
+            best = prefix;
+        }
+    }}
+
+    return best;
+}
+
+function intermsStrCon(a, b) {
+    const mlta = a.length; // assuming `a` and `b` have same length
+    let num = '';
+
+    for (let x = 0; x < mlta; x++) {
+        if (b[x] === 1) {
+            num += (a[x] + '⋅');
+        } else if (b[x] !== 0) {
+            num += (a[x] + toSuperscript(b[x]) + '⋅');
+        }
+    }
+
+    if (num !== '' && num.endsWith('⋅')) {
+        num = num.slice(0, -1);
+    }
+
+    return num;
+}
+function arraysEqual(a, b) 
+{
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) return false;
+    }
+    return true;
+}
+function inTermsMetric(mlta_vector) {
+    // Iterate over unit names
+    for (let u of Object.keys(units)) {
+        if (arraysEqual(mlta_vector, units[u])) {
+            return u;
+        }
+    }
+
+    return ''; // Return an empty string if no match is found
+}
+function inTermsImperial(mlta_vector) {
+
+    // Iterate over unit names
+    for (let u of imperial_keys) {
+        if (arraysEqual(mlta_vector, units[u])) {
+            return u;
+        }
+    }
+
+    return ''; // Return an empty string if no match is found
+}
+
+class Value {
+    constructor() {
+        this.original_unit = '';
+        this.mlta_vector = [0, 0, 0, 0, 0]; // Assuming vec creates an array
+        this.value = 1;
+        this.prefix = '';
+    }
+
+    setUnit(u_string, exponent = 1) {
+        this.original_unit = u_string;
+        this.mlta_vector = units[u_string].map(val => val * exponent); // Assuming units is a dictionary of arrays
+
+        this.value *= Math.pow(unit_values[u_string], exponent);
+
+    }
+
+    setPrefix(p_string, exponent = 1) {
+        this.prefix = p_string;
+        this.value *= Math.pow(prefixes[p_string], exponent);
+        if (this.original_unit === 'm³') {
+            this.value *= prefixes[p_string] * prefixes[p_string];
+        }
+    }
+
+    show() {
+        console.log(this.value, this.prefix, this.original_unit, this.mlta_vector);
+    }
+
+    get_value_in_terms(u) {
+        let v = this.value;
+        v /= unit_values[u];
+        return( v);
+    }
+
+    show_in_terms() {
+        //console.log(this.mlta_vector);
+        //console.log(this.value);
+        let unit_str = inTermsMetric(this.mlta_vector);
+        let v = this.value;
+
+        v = this.get_value_in_terms(unit_str);
+
+        let pref_str = bestPrefix(v,prefixes);
+
+        v /= prefixes[pref_str]
+        return(v.toPrecision(PRECISCION).toString()+pref_str+ unit_str);
+    }
+    show_in_terms_con() {
+        let unit_str = intermsStrCon(['kg','m','s','A','K'],this.mlta_vector);
+        let v = this.value;
+        let pref_str = bestPrefix(v,prefixescon);
+
+        v /= prefixescon[pref_str]
+        return(v.toPrecision(PRECISCION).toString()+pref_str+ unit_str);
+
+    }
+    show_in_terms_imperial() {
+        let unit_str = inTermsImperial(this.mlta_vector);
+        let v = this.value;
+        v = this.get_value_in_terms(unit_str);
+
+        let pref_str = bestPrefix(v,prefixescon);
+
+        if (unit_str == '')
+        {   
+            let conversion_uscs = [14.59390,0.3048,1,1,5/9]
+            let uscs_mlta = [0,0,0,0,0]
+            for (let i = 0; i < 5; i++) {
+                v *= Math.pow(1/conversion_uscs[i], this.mlta_vector[i])
+            }
+            unit_str = intermsStrCon(['slug','ft','s','A','K'],this.mlta_vector);
+        }
+
+        v /= prefixescon[pref_str]
+        return(v.toPrecision(PRECISCION).toString() + pref_str + unit_str);
+    }
+  }
+
+    function extractUnit(str) {
+        for (let unit of knownUnits) {
+            if (str.endsWith(unit)) {
+                return {
+                    prefix: str.substring(0, str.length - unit.length),
+                    unit: unit
+                };
+            }
+        }
+
+        // Return null if no known unit is found at the end of the string
+        return null;
+    }
+
+    function convert(terms,exponents) 
+    {
+       
+        let values = terms.map((term, index) => {
+            let exponent = exponents[index];
+            let value = new Value();
+
+
+            let unit_and_prefix = '';
+            let num_val = 1.0;
+            let match = term.match(/^(\d*\.?\d+)(.*)$/);
+            if (match) 
+            {
+                num_val = parseFloat(match[1]);
+                unit_and_prefix = match[2];
+            }
+            else 
+            {
+                unit_and_prefix = term;
+            }
+            console.log(num_val,exponent,Math.pow( num_val, exponent));
+            value.value = Math.pow( num_val, exponent);
+
+            a = extractUnit(unit_and_prefix);
+            //console.log(a)
+            value.setUnit(a.unit,exponent);
+
+            value.setPrefix(a.prefix,exponent);
+            
+
+            //value.show();
+            return value;
+            i+=1;
+        });
+
+        return values
+    }
+    function mult(values) {
+        res = new Value();
+        
+        for (let v of values)
+        {
+            
+            res.value *= v.value;
+            
+            for (let i = 0; i < res.mlta_vector.length; i++) 
+            {
+                res.mlta_vector[i] += v.mlta_vector[i];
+            }
+        }
+        return res
+    }
+    function split_string(input_str) 
+    {
+    let terms = [];
+    let exponents = [];
+    
+    input_str = input_str.replace(/\s/g, '');
+    let start = 0;
+    for (let i = 0; i < input_str.length; i++) 
+    {
+        c = input_str[i];
+        if (c === '*' || c === '/') 
+        {
+            terms.push(input_str.substring(start, i).trim());
+            exponents.push(input_str[i] === '/' ? -1 : 1);
+            start = i + 1;
+        }
+    }
+    terms.push(input_str.substring(start).trim());  // push the last term
+
+    exponents.unshift(1);  // if no operation before the first term, assume '*'
+
+    console.log(terms, exponents);
+    return { terms: terms, exponents: exponents };
+    }
+    function MAIN() {
+        // Get the input value
+        let inputValue = document.querySelector('.input-box').value;
+
+        // Split the string by "*" or "/"
+        let terms = split_string(inputValue);
+
+        values = convert(terms.terms,terms.exponents);
+
+
+        RESULT = mult(values)
+
+        resultstring = RESULT.show_in_terms();
+
+        document.querySelector('.answer').innerHTML = resultstring;
+
+        resultcon = RESULT.show_in_terms_con();
+        document.querySelector('.con').innerHTML = resultcon;
+
+        resultimp = RESULT.show_in_terms_imperial();
+        document.querySelector('.Imperial').innerHTML = resultimp;
+
+        // Display the result
+        //document.querySelector('.result').innerHTML = terms.join(', ');
+
+    }
+        function clearInput() {
+            document.querySelector('.input-box').value = ''; // Clear the input
+            MAIN(); // Update the divs
+        }
+
+
+    
+</script>
+
+</body>
+</html>
