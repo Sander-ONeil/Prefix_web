@@ -98,7 +98,7 @@ let prefixes ={
 let prefixescon = {};
 prefixescon[""] = 1;
 
-for (let x = -46; x < -5; x++) {
+for (let x = -46; x < -4; x++) {
     prefixescon["e" + x + " "] = Math.pow(10, x);
 }
 for (let x = 5; x < 46; x++) {
@@ -457,20 +457,24 @@ class Value {
         let unit_str = inTermsMetric(this.mlta_vector);
         let v = this.value;
         v = this.get_value_in_terms(unit_str);
+        let pref_str = '';
         if (unit_str == '')
         {
-            unit_str = intermsStrCon(['g','m','s','A','K'],this.mlta_vector);
-            if (unit_str[0] === 'g'){
-            v /= 1000;
-            }
+            unit_str = intermsStrCon(['kg','m','s','A','K'],this.mlta_vector);
+            // if (unit_str[0] === 'g'){
+            // v /= 1000;
+            // }
+            pref_str = bestPrefix(v,prefixescon);
+
+        v /= prefixescon[pref_str]
         }
         
         
-        
+        else{
 
-        let pref_str = bestPrefix(v,prefixes);
+            pref_str = bestPrefix(v,prefixes);
 
-        v /= prefixes[pref_str]
+            v /= prefixes[pref_str]}
         return(v.toPrecision(PRECISCION).toString()+pref_str+ unit_str);
     }
     show_in_terms_con() {
@@ -555,6 +559,7 @@ class Value {
 
         return values
     }
+
     function mult(values) {
         res = new Value();
         
@@ -570,6 +575,85 @@ class Value {
         }
         return res
     }
+
+    function find_terms(str){
+        let terms = []
+        let exponents = []
+        let start = 0;
+        
+        let lasttermwasbrackets = false;
+
+        for (let i = 0; i < str.length; i++)
+        {
+            c = str[i];
+            //console.log(c);
+            if (c === '*' || c === '/')
+            {
+                terms.push(str.substring(start, i).trim());
+                
+                exponents.push(str[i] === '/' ? -1.0 : 1.0);
+                start = i + 1;
+                lasttermwasbrackets = false;
+            }
+
+            if (c == '[')
+            {
+                if (str.includes(']') )
+                {
+                    let newstringend = str.lastIndexOf(']');
+                    newstring = str.substring(i+1,newstringend);
+
+                    console.log('newstring',newstring);
+
+                    let a = find_terms(newstring);
+                    terms = terms.concat(a.terms);
+
+                    let exponentValue = 1.0;
+
+                    if( str[newstringend+1] === '^')
+                    {
+                        let exponentStart = newstringend + 2; // Position just after ^
+                        let exponentEnd = exponentStart;
+
+                        while (exponentEnd < str.length && !["/", "*", "]"].includes(str[exponentEnd])) {
+                            exponentEnd++;
+                        }
+                        console.log('fractional?',str.substring(exponentStart, exponentEnd));
+                        exponentValue = parseFloat(str.substring(exponentStart, exponentEnd));
+                        start = exponentEnd;
+                    }
+                    else{
+                        start = newstringend;
+                    }
+                    if (str[i-1] === '/'){
+                        let f = a.exponents.map(e => e * -1.0 * exponentValue)
+                        exponents.pop()
+                        exponents = exponents.concat(f); 
+                    }
+                    
+                    else{
+                        exponents.pop()
+                        let f = a.exponents.map(e => e * exponentValue)
+                        console.log(exponentValue,f);
+                        exponents = exponents.concat(f);}
+
+
+                    i = newstringend;
+                    
+                    lasttermwasbrackets = true;
+                }
+            }
+
+        }
+        if (!lasttermwasbrackets){
+        terms.push(str.substring(start).trim());  // push the last term
+        }
+        if (terms.length != exponents.length){
+        exponents.unshift(1);}
+        console.log(terms,exponents)
+        return{ terms:terms, exponents:exponents}
+    }
+
     function split_string(input_str)
     {
     let terms = [];
@@ -579,65 +663,24 @@ class Value {
     input_str = input_str.replaceAll('×', '*');
     input_str = input_str.replaceAll('⋅', '*');
     input_str = input_str.replaceAll('÷', '/');
-    //console.log(input_str);
-    let start = 0;
-    
-    let open_brackets = [];
-    let open_brackets_div = [];
-    
-    let closed_brackets = [];
-    let closed_brackets_exp = [];
-    
-    let exponent_strings = [];
-    
-    for (let i = 0; i < input_str.length; i++)
-    {
-        c = input_str[i];
-        
-        if ( c == '^')
-        {
-          exp_str
-          for (let ii = i+1; ii < input_str.length; ii++)
-          {
-            if (input_str[ii] === '*' || input_str[ii] === '/' || input_str[ii] === ']'){
-              i = ii-1;
-              break;
-            }
-            
-          }
-        }
-        
-        if (c === '*' || c === '/')
-        {
-            terms.push(input_str.substring(start, i).trim());
-            exponents.push(input_str[i] === '/' ? -1 : 1);
-            start = i + 1;
-        }
-        if (c == '[')
-        {
-          open_brackets.push(terms.length);
-          if (input_str[i-1] == '/')
-          {
-            open_brackets_div.push(terms.length);
-          }
-        }
-        
-        if (c == ']')
-        {
-          closed_brackets.push(terms.length);
-          if (input_str[i+1] == '^')
-          {
-            closed_brackets_exp.push(input_str.substring(i+2, input_str.length));
-          }
-        }
+    let openBracketsCount = (input_str.match(/\[/g) || []).length;
+    let closeBracketsCount = (input_str.match(/\]/g) || []).length;
+
+    if (openBracketsCount > closeBracketsCount) {
+        // Add missing close brackets to the end
+        input_str = input_str + ']'.repeat(openBracketsCount - closeBracketsCount);
+    } else if (closeBracketsCount > openBracketsCount) {
+        // Add missing open brackets to the beginning
+        input_str = '['.repeat(closeBracketsCount - openBracketsCount) + input_str;
     }
-    console.log(open_brackets,closed_brackets);
     
-    terms.push(input_str.substring(start).trim());  // push the last term
+    //console.log(input_str);
+    a = find_terms(input_str);
+    
+    terms = terms.concat(a.terms);
+    exponents = exponents.concat(a.exponents);
 
-    exponents.unshift(1);  // if no operation before the first term, assume '*'
-
-    //console.log(terms, exponents);
+    console.log(terms, exponents);
     return { terms: terms, exponents: exponents };
     }
     function MAIN() {
