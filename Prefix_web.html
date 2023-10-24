@@ -387,7 +387,7 @@ function intermsStrCon(a, b) {
 
     return num;
 }
-function arraysEqual(a, b) 
+function arraysEqual(a, b)
 {
     if (a.length !== b.length) return false;
     for (let i = 0; i < a.length; i++) {
@@ -458,7 +458,7 @@ class Value {
         let v = this.value;
         v = this.get_value_in_terms(unit_str);
         if (unit_str == '')
-        {   
+        {
             unit_str = intermsStrCon(['g','m','s','A','K'],this.mlta_vector);
             if (unit_str[0] === 'g'){
             v /= 1000;
@@ -490,7 +490,7 @@ class Value {
         let pref_str = bestPrefix(v,prefixescon);
 
         if (unit_str == '')
-        {   
+        {
             let conversion_uscs = [14.59390,0.3048,1,1,5/9]
             let uscs_mlta = [0,0,0,0,0]
             for (let i = 0; i < 5; i++) {
@@ -518,7 +518,7 @@ class Value {
         return null;
     }
 
-    function convert(terms,exponents) 
+    function convert(terms,exponents)
     {
        
         let values = terms.map((term, index) => {
@@ -529,16 +529,16 @@ class Value {
             let unit_and_prefix = '';
             let num_val = 1.0;
             let match = term.match(/^(\d*\.?\d+)(.*)$/);
-            if (match) 
+            if (match)
             {
                 num_val = parseFloat(match[1]);
                 unit_and_prefix = match[2];
             }
-            else 
+            else
             {
                 unit_and_prefix = term;
             }
-            console.log(num_val,exponent,Math.pow( num_val, exponent));
+            //console.log(num_val,exponent,Math.pow( num_val, exponent));
             value.value = Math.pow( num_val, exponent);
 
             a = extractUnit(unit_and_prefix);
@@ -563,14 +563,14 @@ class Value {
             
             res.value *= v.value;
             
-            for (let i = 0; i < res.mlta_vector.length; i++) 
+            for (let i = 0; i < res.mlta_vector.length; i++)
             {
                 res.mlta_vector[i] += v.mlta_vector[i];
             }
         }
         return res
     }
-    function split_string(input_str) 
+    function split_string(input_str)
     {
     let terms = [];
     let exponents = [];
@@ -579,23 +579,65 @@ class Value {
     input_str = input_str.replaceAll('×', '*');
     input_str = input_str.replaceAll('⋅', '*');
     input_str = input_str.replaceAll('÷', '/');
-    console.log(input_str);
+    //console.log(input_str);
     let start = 0;
-    for (let i = 0; i < input_str.length; i++) 
+    
+    let open_brackets = [];
+    let open_brackets_div = [];
+    
+    let closed_brackets = [];
+    let closed_brackets_exp = [];
+    
+    let exponent_strings = [];
+    
+    for (let i = 0; i < input_str.length; i++)
     {
         c = input_str[i];
-        if (c === '*' || c === '/') 
+        
+        if ( c == '^')
+        {
+          exp_str
+          for (let ii = i+1; ii < input_str.length; ii++)
+          {
+            if (input_str[ii] === '*' || input_str[ii] === '/' || input_str[ii] === ']'){
+              i = ii-1;
+              break;
+            }
+            
+          }
+        }
+        
+        if (c === '*' || c === '/')
         {
             terms.push(input_str.substring(start, i).trim());
             exponents.push(input_str[i] === '/' ? -1 : 1);
             start = i + 1;
         }
+        if (c == '[')
+        {
+          open_brackets.push(terms.length);
+          if (input_str[i-1] == '/')
+          {
+            open_brackets_div.push(terms.length);
+          }
+        }
+        
+        if (c == ']')
+        {
+          closed_brackets.push(terms.length);
+          if (input_str[i+1] == '^')
+          {
+            closed_brackets_exp.push(input_str.substring(i+2, input_str.length));
+          }
+        }
     }
+    console.log(open_brackets,closed_brackets);
+    
     terms.push(input_str.substring(start).trim());  // push the last term
 
     exponents.unshift(1);  // if no operation before the first term, assume '*'
 
-    console.log(terms, exponents);
+    //console.log(terms, exponents);
     return { terms: terms, exponents: exponents };
     }
     function MAIN() {
