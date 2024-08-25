@@ -372,9 +372,13 @@ let units = {'':[0.0,0.0,0.0,0.0,0.0, 0.0],
 '\'':[0,0,0,0,0,0],
 '\"':[0,0,0,0,0,0],
 '°C₀':[0,0,0,0,1,0],
+'kWh':[1,2,-2,0,0,0],
+'kwh':[1,2,-2,0,0,0],
 };
 
 unit_values = {'':1,
+'kWh':3.6000e+6,
+'kwh':3.6000e+6,
 '°C₀':273.15,
 '\'':0.017453292519943295/60,
 '\"':0.017453292519943295/60/60,
@@ -1379,7 +1383,7 @@ function clearInput() {
     MAIN(); // Update the divs
 }
 
-const button_text = ['×', '÷', '°', 'μ', 'π', 'Ω', 'Å','℥', 'ε₀', 'kₑ', 'H₀', 'c_speed_of_light','c','ρ','Density_of_Water', 'g_earth','gₑ', 'molarity', 'G', 'Planck_length', 'Planck_mass', 'Planck_time', 'Planck_temperature', 'earth_circumference', 'Age_of_universe', 'mass_sun', 'mass_earth', 'mass_moon', 'R_earth','pow(',',',')','exp(','[',']','^','×', '÷','+','-'];
+const button_text = ['×', '÷', '°', 'μ', 'π', 'Ω', 'Å','℥', 'ε₀', 'kₑ', 'H₀', 'c_speed_of_light','c','ρ','Density_of_Water', 'g_earth','gₑ', 'molarity', 'G', 'Planck_length', 'Planck_mass', 'Planck_time', 'Planck_temperature', 'earth_circumference', 'Age_of_universe', 'mass_sun', 'mass_earth', 'mass_moon', 'R_earth','(',')','[',']','^','×', '÷','+','-'];
 
 const buttonsContainer = document.getElementById("buttons-container");
 
