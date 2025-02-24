@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    </style>
+    <title>String Splitter</title>
+    
+    <style>
+        .container {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Adds spacing between elements */
+        }
+        .dropdown-label {
+            color: black;
+        }
+        .special-btn {
+            color: black;
+            margin: 1px;
+            padding: 1px 1px;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 1px;
+        }
+        .input-box {
+            font-size: 20px;
+            padding: 10px;
+            width: 50%;
+            box-sizing: border-box;
+        }
+        .answer {
+            color: black;
+            
+            font-size: 40px;
+        }
+        .error_box {
+            color: darkred;
+            margin-top: 2px;
+            font-size: 2px;
+        }
+
+        
+        .combined {
+            color: blue;
+            margin-top: 2px;
+            margin-bottom: 2px;
+            font-size: 2px;
+        }
+        .con {
+            color: black;
+            margin-top: 1px;
+            font-size: 1px;
+        }
+        .Imperial {
+            color: black;
+            margin-top: 40px;
+            margin-bottom: 10px;
+            font-size: 40px;
+        }
+        .extra {
+          color: black;
+            margin-top: 10px;
+            font-size: 25px;
+        }
+        .padding {
+            color: transparent;
+            margin-top: 40px;
+            margin-bottom: 40px;
+            font-size: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+<!-- Entry Box -->
+<input type="text" class="input-box" id ="input-box" width="50"  placeholder="Enter Equation..." onkeyup="MAIN()",spellcheck="false">
+<div class="answer" id = answer>SI Units</div>
+<button class="copy-btn" onclick="copyAnswer()">Copy</button>
+
+</div>
+<!-- Clear Button -->
+<button onclick="clearInput()">Clear Input</button>
+<button onclick="invertinput()">Invert</button>
+<!-- square Button -->
+<button onclick="squareinput()">Square</button>
+<!-- sqrt Button -->
+<button onclick="sqrtinput()">Square root</button>
+<button onclick="Bracketinput()">Bracket</button>
+
+<div class="error_box"></div>
+<div class="combined"></div>
+
+
+<script>
+   function copyAnswer() {
+        let answerText = document.getElementById("answer").textContent;
+        navigator.clipboard.writeText(answerText);
+
+    }
+
+const inputElem = document.getElementById("input-box");
+inputElem.focus();
+
+    const superscripts = {
+        '-': "\u207b",
+        '0': "\u2070",
+        '1': "\u00b9",
+        '2': "\u00b2",
+        '3': "\u00b3",
+        '4': "\u2074",
+        '5': "\u2075",
+        '6': "\u2076",
+        '7': "\u2077",
+        '8': "\u2078",
+        '9': "\u2079",
+        '.': "\u22C5"
+    };
+
+  const reversedMap = {};
+    for (let key in superscripts) {
+        reversedMap[superscripts[key]] = key;
+    }
+
+let PRECISCION = 5;
+let prefixes ={
+
+    'Q':1e30,
+    'R':1e27,
+    'Y':1e24,
+    'Z':1e21,
+    'E':1e18,
+    'P':1e15,
+    'T':1e12,
+    'G':1e9,
+    'M':1e6,
+    'k':1e3,
+    '': 1,
+    'c':1e-2,
+    'm':1e-3,
+    'μ':1e-6,
+    'n':1e-9,
+    'p':1e-12,
+    'f':1e-15,
+    'a':1e-18,
+    'z':1e-21,
+    'y':1e-24,
+    'r':1e-27,
+    'q':1e-30,
+    'yotta': 1e24,
+    'zetta': 1e21,
+    'exa': 1e18,
+    'peta': 1e15,
+    'tera': 1e12,
+    'giga': 1e9,
+    'mega': 1e6,
+    'kilo': 1e3,
+    'hecto': 1e2,
+    'deka': 1e1,
+
+    'centi': 1e-2,
+    'milli': 1e-3,
+    'micro': 1e-6,
+    'nano': 1e-9,
+    'pico': 1e-12,
+    'femto': 1e-15,
+    'atto': 1e-18,
+    'zepto': 1e-21,
+    'yocto': 1e-24
+
+
+};
+let prefixescon = {};
+prefixescon[""] = 1;
+
+for (let x = -46; x < -3; x++) {
+    prefixescon["×10" + toSuperscript(x) + " "] = Math.pow(10, x);
+}
+for (let x = 3; x < 46; x++) {
+    prefixescon["×10" + toSuperscript(x) + " "] = Math.pow(10, x);
+}
+
+//m   l   t   a   K   $
+//kg  m   s   A   K   $
+let units = {'':[0.0,0.0,0.0,0.0,0.0, 0.0],
+
+'$':[0.0,0.0,0.0,0.0,0.0, 1.0],
+'degrees':[0.0,0.0,0.0,0.0,0.0, 0.0],
+'rotations':[0.0,0.0,0.0,0.0,0.0, 0.0],
+'π':[0.0,0.0,0.0,0.0,0.0, 0.0],
+'pi':[0.0,0.0,0.0,0.0,0.0, 0.0],
+'mole':[0.0,0.0,0.0,0.0,0.0, 0.0],
+'°':[0.0,0.0,0.0,0.0,0.0, 0.0],
+' ':[0.0,0.0,0.0,0.0,0.0, 0.0],
+'rot':[0.0,0.0,0.0,0.0,0.0, 0.0],
+'rotation':[0.0,0.0,0.0,0.0,0.0, 0.0],
+'deg':[0.0,0.0,0.0,0.0,0.0, 0.0],
+'%':[0.0,0.0,0.0,0.0,0.0, 0.0],
+'g':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'gram':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'kg':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'amu':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'Planck_mass':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'lb_mass':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'mass_sun':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'mass_earth':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'slug':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'mass_moon':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'lbm':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'Atomic_Mass_Unit':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'st':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'stone':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'石':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'m':[0.0,1.0,0.0,0.0,0.0, 0.0],
+'pc':[0.0,1.0,0.0,0.0,0.0, 0.0],
+'AU':[0.0,1.0,0.0,0.0,0.0, 0.0],
+'earth_circumference':[0.0,1.0,0.0,0.0,0.0, 0.0],
+'R_earth':[0.0,1.0,0.0,0.0,0.0, 0.0],
+'Å':[0.0,1.0,0.0,0.0,0.0, 0.0],
+'Planck_length':[0.0,1.0,0.0,0.0,0.0, 0.0],
+'yard':[0.0,1.0,0.0,0.0,0.0, 0.0],
+'Football_Field':[0.0,1.0,0.0,0.0,0.0, 0.0],
+'mile':[0.0,1.0,0.0,0.0,0.0, 0.0],
+'in':[0.0,1.0,0.0,0.0,0.0, 0.0],
+'ft':[0.0,1.0,0.0,0.0,0.0, 0.0],
+'orbit_moon':[0.0,1.0,0.0,0.0,0.0, 0.0],
+'miles':[0.0,1.0,0.0,0.0,0.0, 0.0],
+'meter':[0.0,1.0,0.0,0.0,0.0, 0.0],
+'ly':[0.0,1.0,0.0,0.0,0.0, 0.0],
+'s':[0.0,0.0,1.0,0.0,0.0, 0.0],
+'second':[0.0,0.0,1.0,0.0,0.0, 0.0],
+'Planck_time':[0.0,0.0,1.0,0.0,0.0, 0.0],
+'minute':[0.0,0.0,1.0,0.0,0.0, 0.0],
+'min':[0.0,0.0,1.0,0.0,0.0, 0.0],
+'hour':[0.0,0.0,1.0,0.0,0.0, 0.0],
+'hr':[0.0,0.0,1.0,0.0,0.0, 0.0],
+'day':[0.0,0.0,1.0,0.0,0.0, 0.0],
+'yr':[0.0,0.0,1.0,0.0,0.0, 0.0],
+'year':[0.0,0.0,1.0,0.0,0.0, 0.0],
+'Age_of_universe':[0.0,0.0,1.0,0.0,0.0, 0.0],
+'h':[0.0,0.0,1.0,0.0,0.0, 0.0],
+'years':[0.0,0.0,1.0,0.0,0.0, 0.0],
+'days':[0.0,0.0,1.0,0.0,0.0, 0.0],
+'sec':[0.0,0.0,1.0,0.0,0.0, 0.0],
+'second':[0.0,0.0,1.0,0.0,0.0, 0.0],
+'A':[0.0,0.0,0.0,1.0,0.0, 0.0],
+'K':[0.0,0.0,0.0,0.0,1.0, 0.0],
+'°F':[0.0,0.0,0.0,0.0,1.0, 0.0],
+'°C':[0.0,0.0,0.0,0.0,1.0, 0.0],
+'Planck_temperature':[0.0,0.0,0.0,0.0,1.0, 0.0],
+'hz':[0.0,0.0,-1.0,0.0,0.0, 0.0],
+'rpm':[0.0,0.0,-1.0,0.0,0.0, 0.0],
+'RPM':[0.0,0.0,-1.0,0.0,0.0, 0.0],
+'H₀':[0.0,0.0,-1.0,0.0,0.0, 0.0],
+'m²':[0.0,2.0,0.0,0.0,0.0, 0.0],
+'acre':[0.0,2.0,0.0,0.0,0.0, 0.0],
+'m^2':[0.0,2.0,0.0,0.0,0.0, 0.0],
+'m³':[0.0,3.0,0.0,0.0,0.0, 0.0],
+'liter':[0.0,3.0,0.0,0.0,0.0, 0.0],
+'gallon':[0.0,3.0,0.0,0.0,0.0, 0.0],
+'gallons':[0.0,3.0,0.0,0.0,0.0, 0.0],
+'cup':[0.0,3.0,0.0,0.0,0.0, 0.0],
+'quart':[0.0,3.0,0.0,0.0,0.0, 0.0],
+'pint':[0.0,3.0,0.0,0.0,0.0, 0.0],
+'floz':[0.0,3.0,0.0,0.0,0.0, 0.0],
+'tablespoon':[0.0,3.0,0.0,0.0,0.0, 0.0],
+'tbsp':[0.0,3.0,0.0,0.0,0.0, 0.0],
+'teaspoon':[0.0,3.0,0.0,0.0,0.0, 0.0],
+'tspn':[0.0,3.0,0.0,0.0,0.0, 0.0],
+'L':[0.0,3.0,0.0,0.0,0.0, 0.0],
+'liter':[0.0,3.0,0.0,0.0,0.0, 0.0],
+'m^3':[0.0,3.0,0.0,0.0,0.0, 0.0],
+'cc':[0.0,3.0,0.0,0.0,0.0, 0.0],
+'molarity':[0.0,-3.0,0.0,0.0,0.0, 0.0],
+'C':[0.0,0.0,1.0,1.0,0.0, 0.0],
+'e':[0.0,0.0,1.0,1.0,0.0, 0.0],
+// 'kg/s':[1.0,-1.0,0.0,0.0,0.0, 0.0],
+'m/s':[0.0,1.0,-1.0,0.0,0.0, 0.0],
+'c_speed_of_light':[0.0,1.0,-1.0,0.0,0.0, 0.0],
+'c':[0.0,1.0,-1.0,0.0,0.0, 0.0],
+'mph':[0.0,1.0,-1.0,0.0,0.0, 0.0],
+'m/s²':[0.0,1.0,-2.0,0.0,0.0, 0.0],
+'g_earth':[0.0,1.0,-2.0,0.0,0.0, 0.0],
+'gₑ':[0.0,1.0,-2.0,0.0,0.0, 0.0],
+'m/s^2':[0.0,1.0,-2.0,0.0,0.0, 0.0],
+'g/m³':[1.0,-3.0,0.0,0.0,0.0, 0.0],
+'kg/m³':[1.0,-3.0,0.0,0.0,0.0, 0.0],
+'Density_of_Water':[1.0,-3.0,0.0,0.0,0.0, 0.0],
+'ρ':[1.0,-3.0,0.0,0.0,0.0, 0.0],
+'N':[1.0,1.0,-2.0,0.0,0.0, 0.0],
+'newton':[1.0,1.0,-2.0,0.0,0.0, 0.0],
+'lbf':[1.0,1.0,-2.0,0.0,0.0, 0.0],
+'lb':[1.0,1.0,-2.0,0.0,0.0, 0.0],
+'Pa':[1.0,-1.0,-2.0,0.0,0.0, 0.0],
+'pascal':[1.0,-1.0,-2.0,0.0,0.0, 0.0],
+'bar':[1.0,-1.0,-2.0,0.0,0.0, 0.0],
+'atm':[1.0,-1.0,-2.0,0.0,0.0, 0.0],
+'psi':[1.0,-1.0,-2.0,0.0,0.0, 0.0],
+'T':[1.0,0.0,-2.0,-1.0,0.0, 0.0],
+'J':[1.0,2.0,-2.0,0.0,0.0, 0.0],
+'joule':[1.0,2.0,-2.0,0.0,0.0, 0.0],
+'eV':[1.0,2.0,-2.0,0.0,0.0, 0.0],
+'Btu':[1.0,2.0,-2.0,0.0,0.0, 0.0],
+'cal':[1.0,2.0,-2.0,0.0,0.0, 0.0],
+'kcal':[1.0,2.0,-2.0,0.0,0.0, 0.0],
+'BTU':[1.0,2.0,-2.0,0.0,0.0, 0.0],
+'G':[-1.0,3.0,-2.0,0.0,0.0, 0.0],
+'G_gravitational_constant':[-1.0,3.0,-2.0,0.0,0.0, 0.0],
+'W':[1.0,2.0,-3.0,0.0,0.0, 0.0],
+'watt':[1.0,2.0,-3.0,0.0,0.0, 0.0],
+'hp':[1.0,2.0,-3.0,0.0,0.0, 0.0],
+'V':[1.0,2.0,-3.0,-1.0,0.0, 0.0],
+'volt':[1.0,2.0,-3.0,-1.0,0.0, 0.0],
+'H':[1.0,2.0,-2.0,-2.0,0.0, 0.0],
+'Ω':[1.0,2.0,-3.0,-2.0,0.0, 0.0],
+'ohm':[1.0,2.0,-3.0,-2.0,0.0, 0.0],
+'F':[-1.0,-2.0,4.0,2.0,0.0, 0.0],
+'ε₀':[-1.0,-3.0,4.0,2.0,0.0, 0.0],
+'Coulomb_constant':[1.0,3.0,-4.0,-2.0,0.0, 0.0],
+'kₑ':[1.0,3.0,-4.0,-2.0,0.0, 0.0],
+'Mach':[0,1,-1,0,0,0],
+'mach':[0,1,-1,0,0,0],
+'Ma':[0,1,-1,0,0,0],
+'energy_desity_of_gasoline':[0,2,-2,0,0,0],
+'Hg_density':[1,-3,0,0,0,0],
+'¥':[0,0,0,0,0,1],
+'€':[0,0,0,0,0,1],
+'Gold_cost':[-1,0,0,0,0,1],
+'dyn':[1.0,1.0,-2.0,0.0,0.0, 0.0],
+'tonne':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'Ton':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'ton':[1.0,0.0,0.0,0.0,0.0, 0.0],
+'t':[1.0,0.0,0.0,0.0,0.0, 0.0],
+"Hg":[1.0,-2,-2.0,0.0,0.0, 0.0], //kg⋅m⁻²⋅s⁻²
+'oz':[1.0,1.0,-2.0,0.0,0.0, 0.0],
+'ounce':[1.0,1.0,-2.0,0.0,0.0, 0.0],
+'℥':[1,0,0,0,0,0],
+'PRU':[1,-4,-1,0,0,0],
+'mmHg':[1, -1, -2, 0, 0, 0],
+'bpm':[0,0,-1,0,0,0],
+'BPM':[0,0,-1,0,0,0],
+'dyn/cm²':[1,-1,-2,0,0,0],
+'P':[1,-1,-1,0,0,0],
+'poise':[1,-1,-1,0,0,0],
+'sq. inch':[0,2,0,0,0,0],
+'St':[0,2,-1,0,0,0],
+'Stokes':[0,2,-1,0,0,0],
+'Stone':[1,0,0,0,0,0],
+'st':[1,0,0,0,0,0],
+'\'':[0,0,0,0,0,0],
+'\"':[0,0,0,0,0,0],
+'°C₀':[0,0,0,0,1,0],
+'kWh':[1,2,-2,0,0,0],
+'kwh':[1,2,-2,0,0,0],
+};
+
+unit_values = {'':1,
+'kWh':3.6000e+6,
+'kwh':3.6000e+6,
+'°C₀':273.15,
+'\'':0.017453292519943295/60,
+'\"':0.017453292519943295/60/60,
+'St':0.00010000,
+'Stokes':0.00010000,
+'Stone':6.35 ,
+'st':6.35 ,
+'P':.1,
+'poise':.1,
+'dyn/cm²':0.10000,
+'BPM':0.016666666667,
+'bpm':0.016666666667,
+'mmHg':133.32,
+'℥':0.028350,
+'PRU':1.3330e+8,
+"Hg":1.3332e+5,
+'bar':1.0000e+5,
+'cc':.000001,
+'gₑ':9.80665,
+'°C':1,
+'newton':1,
+'pascal':1,
+'Hg_density':13546,
+'liter':1,
+'joule':1,
+'watt':1,
+'volt':1,
+'ohm':1,
+'meter':1,
+'ly':9.4555e+15,
+'second':1,
+'%':0.01,
+'Ton':1000,
+'ton':1000,
+'ton':1000,
+'oz':4.44822/16,
+'ounce':4.44822/16,
+'t':1000,
+'tonne':1000,
+'dyn':1e-5,
+'¥':0.0068,
+'€':1.08,
+'Gold_cost':64790,
+'energy_desity_of_gasoline':4.7500e+7,
+'Mach':343,
+'mach':343,
+'Ma':343,
+'$':1,
+'degrees':0.017453292519943295,
+'rotations':6.283185307179586,
+'π':3.141592653589793,
+'pi':3.141592653589793,
+'mole':6.0221407599999996e+26,
+'°':0.017453292519943295,
+' ':1,
+'rot':6.283185307179586,
+'rotation':6.283185307179586,
+'deg':0.017453292519943295,
+'g':0.001,
+'gram':0.001,
+'kg':1,
+'amu':1.6605390666e-27,
+'Planck_mass':2.176434e-08,
+'lb_mass':0.453592,
+'mass_sun':1.9891e+30,
+'mass_earth':5.97219e+24,
+'slug':14.5939,
+'mass_moon':7.347673e+22,
+'lbm':0.453592,
+'Atomic_Mass_Unit':1.6605390666e-27,
+'st':0.453592*14,
+'stone':0.453592*14,
+'石':72.6,
+'m':1,
+'pc':3.0857e+16,
+'AU':149597800000.0,
+'earth_circumference':40075000,
+'R_earth':6378130.0,
+'Å':1e-10,
+'Planck_length':1.6162553e-35,
+'yard':0.9144000000000001,
+'Football_Field':91.44000000000001,
+'mile':1609.34,
+'in':0.025400000000000002,
+'ft':0.3048,
+'orbit_moon':384400000,
+'miles':1609.34,
+'s':1,
+'Planck_time':5.391247e-44,
+'minute':60,
+'min':60,
+'hour':3600,
+'hr':3600,
+'day':86400,
+'yr':31540000.0,
+'year':31540000.0,
+'Age_of_universe':4.34842e+17,
+'h':3600,
+'years':31540000.0,
+'days':86400,
+'sec':1,
+'second':1,
+'A':1,
+'Planck_temperature':1.416784e+32,
+'K':1,
+'°F':0.5555555555555556,
+'hz':1,
+'rpm':0.10471975511965977,
+'RPM':0.10471975511965977,
+'H₀':2.197802197802198e-18,
+'m²':1,
+'acre':4046.8564224,
+'m^2':1,
+'m³':1,
+'liter':0.001,
+'gallon':0.00378541,
+'gallons':0.00378541,
+'cup':0.00378541/16,
+'quart':0.00378541/4,
+'pint':0.00378541/8,
+'floz':0.00378541/8/16,
+'tablespoon':0.00378541/16/16,
+'tbsp':0.00378541/16/16,
+'teaspoon':0.00378541/16/48,
+'tspn':0.00378541/16/48,
+'L':0.001,
+'m^3':1,
+'molarity':6.0221407599999996e+26,
+'C':1,
+'e':1.602176634e-19,
+
+'m/s':1,
+'c_speed_of_light':299792458,
+'c':299792458,
+'mph':0.44704,
+'m/s²':1,
+'g_earth':9.80665,
+'m/s^2':1,
+'g/m³':0.001,
+'kg/m³':1,
+'Density_of_Water':999.8395,
+'ρ':999.8395,
+'N':1,
+'lbf':4.44822,
+'lb':4.44822,
+'Pa':1,
+'atm':101325,
+'psi':6894.76,
+'T':1,
+'J':1,
+'eV':1.602176634e-19,
+'Btu':1055.1,
+'cal':4.184,
+'kcal':4.184*1000,
+'BTU':1055.1,
+'G':6.6743e-11,
+'G_gravitational_constant':6.6743e-11,
+'W':1,
+'hp':745.7,
+'V':1,
+'H':1,
+'Ω':1,
+'F':1,
+'ε₀':8.8541878128e-12,
+'Coulomb_constant':8987551000.0,
+'kₑ':8987551000.0,
+'sq. inch':0.00064516,
+
+};
+let knownUnits = Object.keys(units).sort((a, b) => b.length - a.length);
+
+
+
+// Create items array
+var items = Object.keys(unit_values).map(function(key) {
+  return [key, unit_values[key]];
+});
+
+// Sort the array based on the second element
+items.sort(function(first, second) {
+  return -second[1] + first[1];
+});
+
+console.log(items)
+
+let knowrev = Object.keys(units);
+let imperial_keys = [
+    'lb_mass',
+    'slug',
+    'lbm',
+    'in',
+    'yard',
+    'Football_Field',
+    'mile',
+    'ft',
+    'miles',
+    '°F',
+    'acre',
+    'gallon',
+    'gallons',
+    'mph',
+    'lbf',
+    'lb',
+    'psi',
+    'Btu',
+    'BTU',
+    'hp',
+    'st'
+];
+let metric_keys = [
+    'g',        // Mass
+    'm',        // Length
+    's',        // Time
+    'A',        // Electric current
+    'K',        // Temperature
+    'N',        // Force
+    'Pa',       // Pressure
+    'J',        // Energy
+    'W',        // Power
+    'V',        // Voltage
+    'Ω',        // Resistance
+    'H',        // Inductance
+    'F',        // Capacitance
+    'T',  // Magnetic field strength
+    'Hz',       // Frequency
+    'mol',      // Amount of substance
+    'C',         // Electric charge
+    'm^2',      // Area
+    'm^3',      // Volume
+    'm/s',      // Speed
+    'm/s^2',    // Acceleration
+    'kg/m^3',   // Density
+];
+const constants = [
+    'Gold_cost',
+    'energy_desity_of_gasoline',
+    'π',
+    'Planck_mass',
+    'mass_sun',
+    'mass_earth',
+    'mass_moon',
+    'earth_circumference',
+    'R_earth',
+    'Planck_length',
+    'orbit_moon',
+    'Age_of_universe',
+    'Planck_temperature',
+    'H₀',
+    'Density_of_Water',
+    'G',
+    'G',
+    'ε₀',
+    'Coulomb_constant'
+];
+
+let frontUnit = [
+    "$",
+    "Mach",
+
+    "¥",
+    "€"
+]
+// // Function to determine the category of a unit
+// function getCategory(unit) {
+//     if (imperial_keys.includes(unit)) {
+//         return 'imperial';
+//     } else if (metric_keys.includes(unit)) {
+//         return 'metric';
+//     } else {
+//         return 'constant';
+//     }
+// }
+
+// // Create a new structured object
+// let structuredUnits = {};
+// Object.keys(units).forEach(unit => {
+//     structuredUnits[unit] = {
+//         vector: units[unit],
+//         value: unit_values[unit],
+//         category: getCategory(unit)
+//     };
+// });
+
+
+// // Convert the structured data to a JSON string
+// let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(structuredUnits, null, 4));
+// let downloadAnchorNode = document.createElement('a');
+// downloadAnchorNode.setAttribute("href", dataStr);
+// downloadAnchorNode.setAttribute("download", "structured_units.json");
+// document.body.appendChild(downloadAnchorNode); // Required for Firefox
+// downloadAnchorNode.click();
+// downloadAnchorNode.remove();
+
+
+function toSuperscript(num) {
+    const superscript_map = {
+        '-': "\u207b",
+        '0': "\u2070",
+        '1': "\u00b9",
+        '2': "\u00b2",
+        '3': "\u00b3",
+        '4': "\u2074",
+        '5': "\u2075",
+        '6': "\u2076",
+        '7': "\u2077",
+        '8': "\u2078",
+        '9': "\u2079",
+        '.': "\u22C5"
+    };
+
+    return [...String(num)].map(char => superscript_map[char] || char).join('');
+}
+function bestPrefix(num,p_list) {
+    let best = '';
+    let abn = Math.abs(num);
+    if ((abn<1) || (abn >=1000)){
+    for (let prefix in p_list) {
+        if (abn >= p_list[prefix] && (best == '' || p_list[prefix] > p_list[best])) {
+            best = prefix;
+        }
+    }}
+
+    return best;
+}
+
+function bestPrefixten(num,p_list) {
+    let best = '';
+    let abn = Math.abs(num);
+    if ((abn<.0001) || (abn >=100000)){
+    for (let prefix in p_list) {
+        if (abn >= p_list[prefix] && (best == '' || p_list[prefix] > p_list[best])) {
+            best = prefix;
+        }
+    }}
+
+    return best;
+}
+
+function intermsStrCon(a, b) {
+    const mlta = a.length; // assuming `a` and `b` have same length
+    let num = '';
+
+    for (let x = 0; x < mlta; x++) {
+        if (b[x] === 1) {
+            num += (a[x] + '⋅');
+        } else if (b[x] !== 0) {
+            num += (a[x] + toSuperscript(b[x]) + '⋅');
+        }
+    }
+
+    if (num !== '' && num.endsWith('⋅')) {
+        num = num.slice(0, -1);
+    }
+
+    return num;
+}
+function arraysEqual(a, b)
+{
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) return false;
+    }
+    return true;
+}
+function inTermsMetric(mlta_vector) {
+    // Iterate over unit names
+    for (let u of Object.keys(units)) {
+        if (arraysEqual(mlta_vector, units[u])) {
+            return u;
+        }
+    }
+
+    return ''; // Return an empty string if no match is found
+}
+function inTermsImperial(mlta_vector) {
+
+    // Iterate over unit names
+    for (let u of imperial_keys) {
+        if (arraysEqual(mlta_vector, units[u])) {
+            return u;
+        }
+    }
+
+    return ''; // Return an empty string if no match is found
+}
+
+class Value {
+  constructor() {
+      this.original_unit = '';
+      this.mlta_vector = [0, 0, 0, 0, 0, 0]; // Assuming vec creates an array
+      this.value = 1;
+      this.prefix = '';
+  }
+
+  setUnit(u_string, exponent = 1) {
+      this.original_unit = u_string;
+      this.mlta_vector = units[u_string].map(val => val * exponent); // Assuming units is a dictionary of arrays
+      this.value *= Math.pow(unit_values[u_string], exponent);
+
+  }
+
+  setPrefix(p_string, exponent = 1) {
+      this.prefix = p_string;
+      this.value *= Math.pow(prefixes[p_string], exponent);
+      if (this.original_unit === 'm³') {
+          this.value *= prefixes[p_string] * prefixes[p_string];
+      }
+  }
+  is_unitless(){
+      for (let i = 0; i < 5; i++)
+      {
+          if ( this.mlta_vector[i] != 0)
+          {
+              return false;
+          }
+      }
+      return true;
+  }
+  show() {
+      console.log(this.value, this.mlta_vector);
+  }
+  expo(ex) {
+      this.value = Math.pow(this.value,ex);
+      this.mlta_vector = this.mlta_vector.map(val => val * ex);
+
+  }
+
+  get_value_in_terms(u) {
+      let v = this.value;
+      v /= unit_values[u];
+      return( v);
+  }
+
+  show_in_terms() {
+      
+      let unit_str = inTermsMetric(this.mlta_vector);
+      let v = this.value;
+      v = this.get_value_in_terms(unit_str);
+      let pref_str = '';
+      
+      
+      if (unit_str == '')
+      {
+          unit_str = intermsStrCon(['kg','m','s','A','K','$'],this.mlta_vector);
+          // if (unit_str[0] === 'g'){
+          // v /= 1000;
+          // }
+          pref_str = bestPrefixten(v,prefixescon);
+
+      v /= prefixescon[pref_str]
+      }
+      else{
+          pref_str = bestPrefix(v,prefixes);
+          
+          if (unit_str == 'm³')
+          {
+            pref_str = bestPrefix(Math.pow(v,1/3),prefixes)
+          }
+          if (unit_str === 'm²')
+          {
+            pref_str = bestPrefix(Math.pow(v,1/2),prefixes)
+          }
+          v /= prefixes[pref_str]
+        
+        if (unit_str == 'm³')
+      {
+        v /= prefixes[pref_str]
+        v /= prefixes[pref_str]
+      }
+      if (unit_str === 'm²')
+      {
+        v /= prefixes[pref_str]
+      }
+      }
+      
+      
+      
+      return(v.toPrecision(PRECISCION).toString()+pref_str+ unit_str);
+  }
+  show_in_terms_con() {
+      let unit_str = intermsStrCon(['kg','m','s','A','K','$'],this.mlta_vector);
+      let v = this.value;
+      let pref_str = '';//bestPrefix(v,prefixescon);
+
+      // v /= prefixescon[pref_str]
+      return(v.toPrecision(PRECISCION).toString()+pref_str+ unit_str);
+
+  }
+  show_in_terms_imperial() {
+      let unit_str = inTermsImperial(this.mlta_vector);
+      let v = this.value;
+      v = this.get_value_in_terms(unit_str);
+
+      let pref_str = bestPrefixten(v,prefixescon);
+
+      if (unit_str == '')
+      {
+          let conversion_uscs = [14.59390,0.3048,1,1,5/9]
+          let uscs_mlta = [0,0,0,0,0,0]
+          for (let i = 0; i < 5; i++) {
+              v *= Math.pow(1/conversion_uscs[i], this.mlta_vector[i])
+          }
+          unit_str = intermsStrCon(['slug','ft','s','A','F','$'],this.mlta_vector);
+      }
+
+      v /= prefixescon[pref_str]
+      return(v.toPrecision(PRECISCION).toString() +' '+ pref_str + unit_str);
+  }
+  show_in_terms_combined() {
+      //let unit_str = intermsStrCon(['kg','m','s','A','K','$'],this.mlta_vector);
+      let v = this.value;
+    if (this.mlta_vector == [0,0,1,0,0,0])
+    {
+        v = this.get_value_in_terms('hour');
+
+        return( v + 'hours');
+
+    }
+
+    return '';
+
+  }
+  show_in_terms_extra()
+  {
+      
+      // Iterate over unit names
+      let vallist = [];
+      
+      let res = '';
+      let v = this.value;
+      
+      let i = 0;
+      
+      for (let u of items)
+      {
+        u = u[0];
+        console.log(u);
+        if (arraysEqual(this.mlta_vector, units[u]))
+        {
+          let v_in_terms = (v / unit_values[u]);
+          if (!vallist.includes(v_in_terms))
+          {
+            vallist.push(v_in_terms);
+            
+            res += ' = ';
+            res += (v / unit_values[u]).toPrecision(PRECISCION).toString();
+            res += ' ';
+            res += u;
+            
+            i+=1;
+            res += "<br>"
+            
+          }
+        }
+      }
+      //res = res.substring(0,res.length-3)
+      
+      return res;
+      
+  }
+}
+
+function extractUnit(str) {
+    for (let unit of knownUnits) {
+        if (str.endsWith(unit)) {
+            return {
+                prefix: str.substring(0, str.length - unit.length),
+                unit: unit
+            };
+        }
+    }
+    
+    // Return null if no known unit is found at the end of the string
+    return null;
+}
+    
+function superscriptToNormal(input)
+{
+let result = "";
+let foundSuperscript = false;
+let start = 0;
+
+for (let i = 0; i < input.length; i++) {
+    if (reversedMap[input[i]]) {
+        if (!foundSuperscript) {
+            result += "^";
+            foundSuperscript = true;
+            start = i;
+        }
+        result += reversedMap[input[i]];
+    } else {
+        foundSuperscript = false;
+        result += input[i];
+    }
+}
+
+return result;
+}
+
+function exp_str_reader(term)
+{
+    if (term.includes('^'))
+    {
+        let exponentStart = term.indexOf('^'); // Position just after ^
+        let exponentEnd = exponentStart;
+
+        while (exponentEnd < term.length) {
+            exponentEnd++;
+        }
+        
+        return {
+            val:parseFloat(term.substring(exponentStart+1, exponentEnd)),
+            term:term.substring(0,exponentStart)
+        };
+
+    }
+    return {
+        val:1.0,
+        term:term
+    };
+}
+function term_to_value(term,exponent)
+{
+    let value = new Value();
+    
+    let exponentValue = 1;
+    orig_term = term +'';
+    term = superscriptToNormal(term);
+
+    
+    exp_read = exp_str_reader(term);
+    [term,exponentValue] =[exp_read.term,exp_read.val];
+
+    let unit_and_prefix = '';
+    let num_val = 1.0;
+    
+    if (term[0] === '-'){
+      num_val *= -1;
+      term = term.substring(1,term.length)
+    }
+    if (term[0] === '+'){
+      term = term.substring(1,term.length)
+    }
+    
+    let match = term.match(/^(\d*\.?\d*(?:e[+-]?\d+)?)(.*)$/);
+
+    if (match && match[1].length != 0)
+    {
+        num_val *= parseFloat(match[1]);
+        unit_and_prefix = match[2];
+    }
+    else
+    {
+        unit_and_prefix = term;
+    }
+    
+    a = extractUnit(unit_and_prefix);
+    
+    if (a.unit.length + a.prefix.length < unit_and_prefix.length){
+      showerror_to_user('May not have read entire Unit \n for instance \n years -> s -> seconds')
+    }
+    
+    value.value = Math.pow( num_val, exponent);
+    if (match[2].length == 0){
+      value.value = Math.pow( value.value, exponentValue);
+    }
+    
+    
+    value.setUnit(a.unit,exponent*exponentValue);
+
+    value.setPrefix(a.prefix,exponent*exponentValue);
+    
+    if (isNaN(value.value)){
+      showerror_to_user('term: '+orig_term+' is not recognized')
+    }
+
+    //value.show();
+    return value;
+}
+
+
+function mult(values)
+{
+    res = new Value();
+
+    for (let v of values)
+    {
+
+        if (isNaN( v.value) )
+        {
+            showerror_to_user('Multiplying By NaN')
+            // throw Error('Nan Value')
+        }
+        res.value *= v.value;
+        for (let i = 0; i < res.mlta_vector.length; i++)
+        {
+            res.mlta_vector[i] += v.mlta_vector[i];
+        }
+    }
+    // console.log(res.value)
+    return res
+}
+function add(values)
+{
+    res = new Value();
+    console.log()
+    for (let i = 0; i < res.mlta_vector.length; i++)
+    {
+        res.mlta_vector[i] = values[0].mlta_vector[i];
+        //console.log(values[0].mlta_vector[i] === values[1].mlta_vector[i],values[0].mlta_vector[i] , values[1].mlta_vector[i])
+        if (!(values[0].mlta_vector[i] === values[1].mlta_vector[i])){
+            showerror_to_user('adding/subtracting non-compatible units')
+            // throw Error('adding/subtracting non equal units')
+            
+            console.log('adding/subtracting non equal units')
+        }
+    }
+    res.value = 0;
+    for (let v of values)
+    {
+        res.value += v.value;
+        console.log('add val',v.value)
+    }
+
+    return res
+}
+
+function find_matched_bracket(str,i)
+{
+    let depth = 0;
+    for (let c = i+1; c< str.length; c++)
+    {
+        if (depth == 0 && str[c] == ']')
+        {
+        return c;
+        }
+        if ( str[c] == '['){
+        depth+=1;
+        }
+        if (str[c] == ']'){
+        depth-=1;
+        }
+    }
+    return str.length;
+}
+function find_matched_parenthesis(str,i)
+{
+    let depth = 0;
+    for (let c = i+1; c< str.length; c++)
+    {
+        if (depth == 0 && str[c] == ')')
+        {
+        return c;
+        }
+        if ( str[c] == '('){
+        depth+=1;
+        }
+        if (str[c] == ')'){
+        depth-=1;
+        }
+    }
+    return str.length;
+}
+function find_next_pemdAS(str,i)
+{
+    for (let c = i+1; c< str.length; c++)
+    {
+        if (str[c] === '+' || str[c] === '-')
+        {
+        return c;
+        }
+    }
+    return str.length;
+}
+function find_next_char(str,i,ch)
+{
+    for (let c = i+1; c< str.length; c++)
+    {
+        if (str[c] === ch)
+        {
+        return c;
+        }
+    }
+    return str.length;
+}
+function str_to_final_value(str, depth = 0) {
+  let runningResult = new Value();
+  let exponent = 1.0;
+  let start = 0;
+  let last_term_mult = true;
+  let i = 0;
+  console.log('str ',str,' depth: ',depth)
+  while (i < str.length) {
+      let c = str[i];
+      console.log(c)
+      if (['*', '/'].includes(c)) {
+        processMultiplicativeTerm();
+        exponent = c === '/' ? -1.0 : 1.0;
+        start = i + 1;
+      }
+      if (['+', '-'].includes(c) && i != 0 && !(['e', '^'].includes(str[i-1]))) {
+        processAdditiveTerm();
+      }
+      if (c === 'e' && str.substring(i, i + 4) === 'exp(') {
+        processExponentialTerm();
+      }
+      if (c === 'p' && str.substring(i, i + 4) === 'pow('){
+        processPowerTerm();
+      }
+      if (c === 'l' && str.substring(i, i + 3) === 'ln('){
+        processLNTerm();
+      }
+      if (['[', '('].includes(c)) {
+        processBracketTerm(c);
+      }
+      i++;
+  }
+
+  if (last_term_mult) {
+    processMultiplicativeTerm()
+  }
+  console.log('fin val: ',runningResult.value,' depth: ',depth)
+  return runningResult;
+
+  function processMultiplicativeTerm() 
+  {
+    if (last_term_mult && start !== i) 
+    {
+        let termValue = term_to_value(str.substring(start, i).trim(), exponent);
+        
+        runningResult = mult([runningResult, termValue]);
+    }
+    last_term_mult = true;
+  }
+
+  function processAdditiveTerm() {
+      let term = str.substring(start, i).trim();
+      let termValue = term_to_value(term, exponent);
+      runningResult = mult([runningResult, termValue]);
+      
+      let next_bracket = find_matched_bracket(str, i);
+      let next_AS = find_next_pemdAS(str, i);
+      let newstringend = Math.min(next_bracket, next_AS, str.length);
+      let bracketValue = str_to_final_value(str.substring(i + 1, newstringend), depth - 1);
+      
+      if (str[i] === '-') bracketValue.value *= -1.0;
+      //bracketValue.expo(exponent)
+      runningResult = add([runningResult, bracketValue]);
+      start = newstringend;
+      last_term_mult = false;
+      i = start - 1;
+  }
+  
+  function processExponentialTerm() {
+    let newstringend = find_matched_parenthesis(str, i + 4);
+    let bracketValue = str_to_final_value(str.substring(i + 4, newstringend), depth - 1);
+    bracketValue.value = Math.exp(bracketValue.value);
+    if (!bracketValue.is_unitless()){
+        showerror_to_user('Exponent of Non-Unitless Value')
+    }
+    bracketValue.expo(exponent)
+    runningResult = mult([runningResult, bracketValue]);
+    start = newstringend + 1;
+    last_term_mult = false;
+    i = start - 1;
+  }
+  function processLNTerm() {
+    let newstringend = find_matched_parenthesis(str, i + 3);
+    let bracketValue = str_to_final_value(str.substring(i + 3, newstringend), depth - 1);
+    bracketValue.value = Math.log(bracketValue.value);
+    if (!bracketValue.is_unitless()){
+        showerror_to_user('Log of Non-Unitless Value')
+    }
+    bracketValue.expo(exponent)
+    runningResult = mult([runningResult, bracketValue]);
+    start = newstringend + 1;
+    last_term_mult = false;
+    i = start - 1;
+  }
+  function processPowerTerm() {
+    let comma_index = find_next_char(str, i + 4,',');
+    let base = str_to_final_value(str.substring(i + 4, comma_index), depth - 1);
+    
+    
+    let end_parenthesis = find_matched_parenthesis(str, i + 4);
+    let pow = str_to_final_value(str.substring(comma_index+1, end_parenthesis), depth - 1);
+    
+    base.value = Math.pow(base.value, pow.value);
+    base.mlta_vector = base.mlta_vector.map(val => val * pow.value);
+    if (!pow.is_unitless()){
+        showerror_to_user('Pow with Non-Unitless exp')
+    }
+    base.expo(exponent)
+    runningResult = mult([runningResult, base]);
+    start = end_parenthesis + 1;
+    last_term_mult = false;
+    i = start - 1;
+  }
+
+  function processBracketTerm(bracketType) {
+    // Depends on if 1/12(x) should be 1/12 *( x ) or 1/ (12*x)
+    if (!["/", "*", "-", "+"].includes(str[i - 1]) && i != 0){
+      processMultiplicativeTerm()
+      exponent = 1
+      showerror_to_user('without operation: *, /, +, or - for bracket unexpected behavior may occur')
+    }
+    let findFunc = bracketType === '[' ? find_matched_bracket : find_matched_parenthesis;
+    let newstringend = findFunc(str, i);
+    let bracketValue = str_to_final_value(str.substring(i + 1, newstringend), depth - 1);
+    
+    if (str[newstringend + 1] === '^') {
+        let exponentStart = newstringend + 2;
+        let exponentEnd = str[exponentStart] === '-' ? exponentStart + 1 : exponentStart;
+        while (exponentEnd < str.length && !["/", "*", "]", "-", "+"].includes(str[exponentEnd])) {
+            exponentEnd++;
+        }
+        exponent *= parseFloat(str.substring(exponentStart, exponentEnd));
+        start = exponentEnd;
+        // if (str[i - 1] === '/') exponent *= -1.0;
+        // bracketValue.expo(exponent);
+    } else {
+        start = newstringend + 1;
+    }
+    bracketValue.expo(exponent)
+
+    runningResult = mult([runningResult, bracketValue]);
+    last_term_mult = false;
+    i = start - 1;
+  }
+}
+
+
+function split_string(input_str)
+{
+    let terms = [];
+    let exponents = [];
+    
+    input_str = input_str.replaceAll(/\s/g, '');
+    input_str = input_str.replaceAll('×', '*');
+    input_str = input_str.replaceAll('⋅', '*');
+    input_str = input_str.replaceAll('÷', '/');
+    let openBracketsCount = (input_str.match(/\[/g) || []).length;
+    let closeBracketsCount = (input_str.match(/\]/g) || []).length;
+
+    if (openBracketsCount > closeBracketsCount) {
+        // Add missing close brackets to the end
+        input_str = input_str + ']'.repeat(openBracketsCount - closeBracketsCount);
+    } else if (closeBracketsCount > openBracketsCount) {
+        // Add missing open brackets to the beginning
+        input_str = '['.repeat(closeBracketsCount - openBracketsCount) + input_str;
+    }
+    input_str = input_str.replaceAll('$', '$*');
+    input_str = input_str.replaceAll('Mach', 'Mach*');
+    input_str = input_str.replaceAll('mach', 'mach*');
+    //input_str = input_str.replaceAll('Ma', 'Ma*');
+    input_str = input_str.replaceAll('¥', '¥*');
+    input_str = input_str.replaceAll('€', '€*');
+
+    return input_str;
+}
+
+function showerror_to_user(er)
+{
+  er += "<br>" + document.querySelector('.error_box').innerHTML;
+    document.querySelector('.error_box').innerHTML = er;
+}
+
+function MAIN()
+{
+    document.querySelector('.error_box').innerHTML = '';
+    // Get the input value
+    let inputValue = document.querySelector('.input-box').value;
+
+    // Split the string by "*" or "/"
+    let terms = split_string(inputValue);
+
+    RESULT = str_to_final_value(terms);
+
+    resultstring = RESULT.show_in_terms();
+
+    document.querySelector('.answer').innerHTML = resultstring;
+
+    resultcon = RESULT.show_in_terms_con();
+    document.querySelector('.con').innerHTML = resultcon;
+
+    resultimp = RESULT.show_in_terms_imperial();
+    document.querySelector('.Imperial').innerHTML = resultimp;
+
+    result_combined = RESULT.show_in_terms_combined();
+    document.querySelector('.combined').innerHTML = result_combined;
+
+    resultextra = RESULT.show_in_terms_extra();
+    document.querySelector('.extra').innerHTML = resultextra;
+    // Display the result
+    //document.querySelector('.result').innerHTML = terms.join(', ');
+    const inputElem = document.getElementById("input-box");
+    inputElem.focus();
+
+}
+function clearInput() {
+    document.querySelector('.input-box').value = ''; // Clear the input
+    MAIN(); // Update the divs
+}
+
+const button_text = ['×', '÷', '°', 'μ', 'π', 'Ω', 'Å','℥', 'ε₀', 'kₑ', 'H₀', 'c_speed_of_light','c','ρ','Density_of_Water', 'g_earth','gₑ', 'molarity', 'G', 'Planck_length', 'Planck_mass', 'Planck_time', 'Planck_temperature', 'earth_circumference', 'Age_of_universe', 'mass_sun', 'mass_earth', 'mass_moon', 'R_earth','(',')','[',']','^','×', '÷','+','-'];
+
+const buttonsContainer = document.getElementById("buttons-container");
+
+button_text.forEach(t => {
+    const btn = document.createElement('button');
+    btn.textContent = t;
+    btn.classList.add('special-btn');
+    btn.onclick = () => insertCharacter(t);
+    buttonsContainer.appendChild(btn);
+});
+
+function insertCharacter(char) {
+    const inputElem = document.getElementById("input-box");
+    
+    const cursorPosition = inputElem.selectionStart;
+
+    const inputValue = inputElem.value;
+
+    if (!(cursorPosition == 0) && !['*','/','÷','⋅','×','-','+'].includes(inputValue[cursorPosition-1])) {
+        if ((char in units) || (char in prefixes)){
+      char = '*' + char;}
+    }
+    const beforeCursor = inputValue.substring(0, cursorPosition);
+    const afterCursor = inputValue.substring(cursorPosition, inputValue.length);
+
+
+    inputElem.value = beforeCursor + char + afterCursor;
+    
+    // Move the cursor right after the inserted character
+    inputElem.selectionStart = cursorPosition + char.length;
+    inputElem.selectionEnd = cursorPosition + char.length;
+
+    MAIN();  // If you still want to update the divs immediately after insertion
+    inputElem.focus();
+}
+
+function invertinput() {
+    const inputElem = document.getElementById("input-box");
+    
+    const inputValue = inputElem.value;
+    
+    inputElem.value = '[' + inputValue + ']^-1';
+    MAIN();
+    inputElem.focus();
+}
+function squareinput() {
+    const inputElem = document.getElementById("input-box");
+    
+    const inputValue = inputElem.value;
+    
+    inputElem.value = '[' + inputValue + ']^2';
+    MAIN();
+    inputElem.focus();
+}
+function sqrtinput() {
+    const inputElem = document.getElementById("input-box");
+    
+    const inputValue = inputElem.value;
+    
+    inputElem.value = '[' + inputValue + ']^0.5';
+    MAIN();
+    inputElem.focus();
+}
+function Bracketinput() {
+    const inputElem = document.getElementById("input-box");
+    
+    const inputValue = inputElem.value;
+    
+    inputElem.value = '[' + inputValue + ']';
+    MAIN();
+    inputElem.focus();
+}
+
+inputElem.focus();
+
+
+let dropdown = document.getElementById('unitDropdown');
+
+
+knowrev.forEach(unit => {
+    let option = document.createElement('option');
+    option.value = unit;
+    option.text = unit;
+    dropdown.appendChild(option);
+});
+
+let dropdownM = document.getElementById('unitDropdownM');
+let optionblank = document.createElement('option');
+    optionblank.value = '';
+    optionblank.text = '';
+    dropdownM.appendChild(optionblank);
+
+metric_keys.forEach(unit => {
+    let option = document.createElement('option');
+    option.value = unit;
+    option.text = unit;
+    dropdownM.appendChild(option);
+});
+
+let dropdownI = document.getElementById('unitDropdownI');
+let optionblank1 = document.createElement('option');
+    optionblank1.value = '';
+    optionblank1.text = '';
+
+    dropdownI.appendChild(optionblank1);
+
+imperial_keys.forEach(unit => {
+    let option = document.createElement('option');
+    option.value = unit;
+    option.text = unit;
+    dropdownI.appendChild(option);
+});
+
+
+let dropdownC = document.getElementById('unitDropdownC');
+let optionblank11 = document.createElement('option');
+    optionblank11.value = '';
+    optionblank11.text = '';
+
+    dropdownC.appendChild(optionblank11);
+
+constants.forEach(unit => {
+    let option = document.createElement('option');
+    option.value = unit;
+    option.text = unit;
+    dropdownC.appendChild(option);
+});
+
+    
+function handleDropdownChange(event) {
+  let char = event.target.value;
+  
+  const inputElem = document.getElementById("input-box");
+  const cursorPosition = inputElem.selectionStart;
+  const inputValue = inputElem.value;
+  
+  if (!(cursorPosition == 0) && !['*','/','÷','⋅','×','-','+'].includes(inputValue[cursorPosition-1])) {
+      char = '*' + char;
+  }
+  
+  const beforeCursor = inputValue.substring(0, cursorPosition);
+  const afterCursor = inputValue.substring(cursorPosition, inputValue.length);
+  
+  
+  
+  inputElem.value = beforeCursor + char + afterCursor;
+  
+  // Move the cursor right after the inserted character
+  inputElem.selectionStart = cursorPosition + char.length;
+  inputElem.selectionEnd = cursorPosition + char.length;
+  this.selectedIndex = 0;
+  
+  MAIN();  // If you still want to update the divs immediately after insertion
+  inputElem.focus();
+}
+
+// List of dropdown element IDs
+const dropdownIDs = ['unitDropdown', 'unitDropdownM', 'unitDropdownI', 'unitDropdownC'];
+
+// Bind the same event listener to all dropdowns
+dropdownIDs.forEach(id => {
+    const dropdown = document.getElementById(id);
+    dropdown.addEventListener('change', handleDropdownChange);
+});
+
+    
+</script>
+
+</body>
+</html>
